@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mysql-library:
+    image: mysql:8.4
+    container_name: mysql-library
+    environment:
+      MYSQL_ROOT_PASSWORD: lakshmi123
+      MYSQL_DATABASE: librarydb
+    ports:
+      - "3307:3306"  # Host:Container - expose MySQL on port 3307
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  library-management-app:
+    build: .
+    container_name: library-management-app
+    depends_on:
+      mysql-library:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-library:3306/librarydb  # Keep 3306 inside Docker
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: lakshmi123
+    ports:
+      - "8087:8087"  # Host:Container - expose Spring Boot app on port 8087
