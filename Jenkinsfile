@@ -50,14 +50,14 @@ pipeline {
             }
         }
 
-        // Stage to stop Docker containers after tests (if needed)
-        stage('Stop Containers') {
-            steps {
-                echo 'Stopping Docker containers...'
-                // Command to stop containers using Docker Compose
-                sh 'docker-compose down -v --remove-orphans'
-            }
-        }
+        // Removed the "Stop Containers" stage to keep containers running
+        // stage('Stop Containers') {
+        //     steps {
+        //         echo 'Stopping Docker containers...'
+        //         // Command to stop containers using Docker Compose
+        //         sh 'docker-compose down -v --remove-orphans'
+        //     }
+        // }
     }
 
     // Post actions (cleanup or notification after pipeline run)
@@ -76,3 +76,4 @@ pipeline {
         }
     }
 }
+
