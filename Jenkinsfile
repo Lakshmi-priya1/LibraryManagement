@@ -1,52 +1,78 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "library-management-app"
-        REPO_URL = 'https://github.com/Lakshmi-priya1/LibraryManagement.git'
-        BRANCH_NAME = 'main'  // Set your branch here
-    }
-
     stages {
-        stage('Clone') {
+        // Stage to checkout the code from GitHub
+        stage('Checkout') {
             steps {
-                script {
-                    // Explicitly checkout the correct branch
-                    checkout scm: [
-                        $class: 'GitSCM',
-                        branches: [[name: "refs/heads/${BRANCH_NAME}"]],
-                        userRemoteConfigs: [[url: REPO_URL]]
-                    ]
-                }
+                checkout scm: [
+                    $class: 'GitSCM', 
+                    branches: [[name: '*/main']], // Adjust the branch name as per your requirement
+                    userRemoteConfigs: [[url: 'https://github.com/Lakshmi-priya1/LibraryManagement.git']]
+                ]
             }
         }
 
-        stage('Build with Maven') {
+        // Stage to build the project (add your build commands here)
+        stage('Build') {
             steps {
-                // Run Maven build
+                echo 'Building the project...'
+                // Example build command for Maven (adjust as per your setup)
                 sh './mvnw clean package -DskipTests'
             }
         }
 
+        // Stage to build a Docker image for the project
         stage('Build Docker Image') {
             steps {
-                // Build the Docker image
-                sh "docker build -t $IMAGE_NAME ."
+                echo 'Building Docker Image...'
+                // Example of building Docker image using Dockerfile
+                sh 'docker build -t library-management-app .'
             }
         }
 
-        stage('Run with Docker Compose') {
+        // Stage to start the application with Docker Compose
+        stage('Start with Docker Compose') {
             steps {
-                // Clean up any running containers before starting new ones
-                sh "docker-compose down"
-                sh "docker-compose up -d"
+                echo 'Starting application with Docker Compose...'
+                // Ensure previous containers are removed before starting new ones
+                sh 'docker-compose down'  // Stops and removes containers
+                sh 'docker-compose up -d'  // Starts containers in detached mode
+            }
+        }
+
+        // Stage to run tests (if any)
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                // Add your testing steps here
+                // For example: sh 'mvn test' or any other testing tool
+            }
+        }
+
+        // Stage to stop Docker containers after tests (if needed)
+        stage('Stop Containers') {
+            steps {
+                echo 'Stopping Docker containers...'
+                // Command to stop containers using Docker Compose
+                sh 'docker-compose down'
             }
         }
     }
 
+    // Post actions (cleanup or notification after pipeline run)
     post {
         always {
-            echo 'Pipeline completed.'
+            echo 'Cleaning workspace...'
+            cleanWs()  // Cleans up the workspace after the pipeline run
+        }
+
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed. Please check the logs.'
         }
     }
 }
