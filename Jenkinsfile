@@ -7,11 +7,6 @@ pipeline {
         BRANCH_NAME = 'main'  // Set your branch here
     }
 
-    tools {
-        // Make sure Git is available
-        git 'Default'
-    }
-
     stages {
         stage('Clone') {
             steps {
