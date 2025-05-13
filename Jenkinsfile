@@ -35,8 +35,8 @@ pipeline {
         stage('Start with Docker Compose') {
             steps {
                 echo 'Starting application with Docker Compose...'
-                // Ensure previous containers are removed before starting new ones
-                sh 'docker-compose down'  // Stops and removes containers
+                // Ensure previous containers and volumes are removed before starting new ones
+                sh 'docker-compose down -v --remove-orphans'  // Stops and removes containers and volumes
                 sh 'docker-compose up -d'  // Starts containers in detached mode
             }
         }
@@ -55,7 +55,7 @@ pipeline {
             steps {
                 echo 'Stopping Docker containers...'
                 // Command to stop containers using Docker Compose
-                sh 'docker-compose down'
+                sh 'docker-compose down -v --remove-orphans'
             }
         }
     }
@@ -76,4 +76,3 @@ pipeline {
         }
     }
 }
-
